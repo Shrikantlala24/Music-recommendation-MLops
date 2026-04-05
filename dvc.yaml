@@ -1,0 +1,35 @@
+stages:
+  download:
+    cmd: python src/data/download.py
+    outs:
+      - data/raw/dataset.csv
+
+  preprocess:
+    cmd: python src/data/preprocess.py
+    deps:
+      - data/raw/dataset.csv
+      - src/data/preprocess.py
+    params:
+      - feature_cols
+      - drop_cols
+      - n_features
+    outs:
+      - data/processed/features.csv
+      - data/processed/scaler.pkl
+
+  train:
+    cmd: python src/model/train.py
+    deps:
+      - data/processed/features.csv
+      - src/model/train.py
+    params:
+      - n_neighbors
+      - metric
+      - algorithm
+      - decay
+      - n_features
+      - feature_cols
+      - dataset_version
+      - eval_sample_size
+    outs:
+      - data/processed/knn_model.pkl

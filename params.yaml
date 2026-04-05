@@ -1,0 +1,23 @@
+n_neighbors: 10
+metric: cosine
+algorithm: brute
+decay: 0.85
+n_features: 8
+feature_cols:
+  - danceability
+  - energy
+  - loudness
+  - speechiness
+  - acousticness
+  - instrumentalness
+  - valence
+  - tempo
+dataset_version: v1
+eval_sample_size: 100
+drop_cols:
+  - duration_ms
+  - explicit
+  - key
+  - mode
+  - liveness
+  - time_signature

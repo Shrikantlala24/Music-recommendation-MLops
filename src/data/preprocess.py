@@ -1,10 +1,20 @@
 """Data preprocessing utilities for feature preparation and artifact saving."""
 
+from __future__ import annotations
+
+import argparse
 from pathlib import Path
 
 import joblib
 import pandas as pd
+import yaml
 from sklearn.preprocessing import StandardScaler
+
+
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "dataset.csv"
+PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+PARAMS_PATH = PROJECT_ROOT / "params.yaml"
 
 
 def preprocess(
@@ -55,4 +65,78 @@ def preprocess(
 	joblib.dump(scaler, scaler_path)
 
 	return df_processed
+
+
+def _load_params(params_path: str) -> dict:
+	"""Load preprocessing parameters from params.yaml."""
+	path = Path(params_path)
+	if not path.exists():
+		raise FileNotFoundError(f"params.yaml not found: {path}")
+
+	with path.open("r", encoding="utf-8") as f:
+		params = yaml.safe_load(f) or {}
+
+	if "feature_cols" not in params or not isinstance(params["feature_cols"], list):
+		raise ValueError("params.yaml must define feature_cols as a list")
+	if "drop_cols" not in params or not isinstance(params["drop_cols"], list):
+		raise ValueError("params.yaml must define drop_cols as a list")
+
+	n_features = int(params.get("n_features", len(params["feature_cols"])))
+	if n_features != len(params["feature_cols"]):
+		raise ValueError(
+			"n_features in params.yaml must match length of feature_cols "
+			f"({n_features} != {len(params['feature_cols'])})"
+		)
+
+	return params
+
+
+def _parse_args() -> argparse.Namespace:
+	"""Parse CLI args for DVC preprocess stage."""
+	parser = argparse.ArgumentParser(description="Preprocess raw dataset for KNN training")
+	parser.add_argument(
+		"--raw-path",
+		default=str(RAW_DATA_PATH),
+		help="Path to raw dataset CSV",
+	)
+	parser.add_argument(
+		"--processed-dir",
+		default=str(PROCESSED_DIR),
+		help="Directory to write processed artifacts",
+	)
+	parser.add_argument(
+		"--params-path",
+		default=str(PARAMS_PATH),
+		help="Path to params.yaml",
+	)
+	return parser.parse_args()
+
+
+def main() -> None:
+	"""CLI entrypoint for DVC preprocess stage."""
+	args = _parse_args()
+	params = _load_params(args.params_path)
+
+	raw_file = Path(args.raw_path)
+	if not raw_file.exists():
+		raise FileNotFoundError(f"Raw dataset not found: {raw_file}")
+
+	df_raw = pd.read_csv(raw_file)
+	df_processed = preprocess(
+		df=df_raw,
+		feature_cols=params["feature_cols"],
+		drop_cols=params["drop_cols"],
+		processed_dir=args.processed_dir,
+	)
+
+	print(
+		"Preprocess complete. "
+		f"Rows={len(df_processed)}, Cols={len(df_processed.columns)}, "
+		f"Outputs={Path(args.processed_dir) / 'features.csv'}, "
+		f"{Path(args.processed_dir) / 'scaler.pkl'}"
+	)
+
+
+if __name__ == "__main__":
+	main()
 

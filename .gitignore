@@ -1,0 +1,22 @@
+# Python artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.venv/
+
+# DVC-managed data artifacts (not in git)
+data/raw/
+data/processed/
+
+# MLflow local stores
+mlruns/
+mlartifacts/
+
+# DVC local cache
+.dvc/cache/
+
+# Keep pipeline definitions in git
+!dvc.yaml
+!params.yaml
+!dvc.lock
