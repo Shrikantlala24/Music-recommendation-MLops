@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 from typing import Any
 
@@ -209,6 +210,9 @@ def train(
 
 		mlflow.set_tag("model_type", "KNN")
 		mlflow.set_tag("filtering_type", "content-based")
+		retrain_reason = os.getenv("RETRAIN_REASON", "").strip()
+		if retrain_reason:
+			mlflow.set_tag("retrain_reason", retrain_reason)
 
 		# Metrics.
 		mlflow.log_metric("train_size", int(X.shape[0]))
