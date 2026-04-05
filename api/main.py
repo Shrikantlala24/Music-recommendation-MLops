@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 from pathlib import Path
 
 import joblib
@@ -24,9 +25,28 @@ LOGGER = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-FEATURES_PATH = PROCESSED_DIR / "features.csv"
-SCALER_PATH = PROCESSED_DIR / "scaler.pkl"
+
+
+def _resolve_path_from_env(env_key: str, default_relative: str) -> Path:
+	"""Resolve a filesystem path from env, falling back to a project-relative default."""
+	raw_value = os.getenv(env_key)
+	if not raw_value:
+		return (PROJECT_ROOT / default_relative).resolve()
+
+	path_value = Path(raw_value)
+	if not path_value.is_absolute():
+		path_value = (PROJECT_ROOT / path_value).resolve()
+	return path_value
+
+
+FEATURES_PATH = _resolve_path_from_env(
+	"FEATURES_PATH",
+	"data/processed/features.csv",
+)
+SCALER_PATH = _resolve_path_from_env(
+	"SCALER_PATH",
+	"data/processed/scaler.pkl",
+)
 
 FEATURE_COLS = [
 	"danceability",

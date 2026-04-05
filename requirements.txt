@@ -8,3 +8,4 @@ joblib
 mlflow
 PyYAML
 dvc
+kagglehub
