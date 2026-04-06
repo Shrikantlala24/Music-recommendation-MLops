@@ -16,9 +16,9 @@ RUN set -eux; \
 
 COPY api /app/api
 COPY src /app/src
-COPY data/processed/ /app/data/processed/
-COPY mlruns/ /app/mlruns/
-COPY mlartifacts/ /app/mlartifacts/
+
+# Create runtime mount points. Data and MLflow stores are mounted via compose.
+RUN mkdir -p /app/data/processed /app/mlruns /app/mlartifacts
 
 EXPOSE 8000
 
