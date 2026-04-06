@@ -1,9 +1,6 @@
 .git
 .dvc
 .dvc/cache
-mlruns
-mlartifacts
-data
 __pycache__
 *.pyc
 .env
