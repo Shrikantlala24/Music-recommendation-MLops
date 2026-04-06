@@ -16,6 +16,9 @@ RUN set -eux; \
 
 COPY api /app/api
 COPY src /app/src
+COPY data/processed/ /app/data/processed/
+COPY mlruns/ /app/mlruns/
+COPY mlartifacts/ /app/mlartifacts/
 
 EXPOSE 8000
 
