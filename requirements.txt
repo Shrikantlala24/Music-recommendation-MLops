@@ -9,3 +9,5 @@ mlflow
 PyYAML
 dvc
 kagglehub
+streamlit
+requests
